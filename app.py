@@ -47,7 +47,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 st.sidebar.markdown("---")
-st.sidebar.markdown("### Division of Biostatistics")
 st.sidebar.markdown("Department of Population Health Sciences")
 st.sidebar.caption("👨‍💻 Developed by: Jiayi Wei")
 
