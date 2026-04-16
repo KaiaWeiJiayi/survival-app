@@ -33,16 +33,18 @@ def extract_data_from_km_image(image_file):
     }
     """
     
-    try:
+try:
         # Open the uploaded image
         img = Image.open(image_file)
         
-        # Call the model using the new SDK syntax
+        # USE THIS UPDATED SYNTAX
+        # Directly use 'gemini-1.5-flash' without any prefixes
         response = client.models.generate_content(
-            model='gemini-1.5-flash',
+            model='gemini-1.5-flash-latest', 
             contents=[prompt, img]
         )
-        
+
+    
         # Clean the LLM output to ensure it is a valid JSON string
         result_text = response.text.strip()
         if result_text.startswith("```json"):
