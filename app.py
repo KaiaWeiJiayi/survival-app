@@ -93,6 +93,29 @@ if selected_module == "📌 Single Trial Analysis":
                             st.write("❌ **Not Statistically Significant** (p >= 0.05)")
                         
                         st.info(f"Analysis performed: {'Multivariate' if len(data) > 2 else 'Standard'} Log-rank Test with Linear Interpolation")
+
+                        # ==========================================
+                        # Validation Area
+                        # ==========================================
+                        st.markdown("---")
+                        st.subheader("🔍 Extraction Validation")
+                        st.markdown("Compare the original plot with the curves generated from the AI-extracted Pseudo-IPD.")
+                        
+
+                        val_col1, val_col2 = st.columns(2)
+                        
+                        with val_col1:
+                            st.markdown("**Original Extracted Image**")
+                            # Initial km plot
+                            st.image(uploaded_file, width="stretch")
+                            
+                        with val_col2:
+                            st.markdown("**Reconstructed Plot (lifelines)**")
+                            with st.spinner("Generating validation plot..."):
+                                # import df_reconstructed
+                                validation_fig = plot_reconstructed_km(df_reconstructed)
+                               
+                                st.pyplot(validation_fig)
                         
                         st.markdown("---")
                         st.subheader("📋 Reconstructed Patient-Level Data")
@@ -197,3 +220,48 @@ elif selected_module == "🌟 Indirect Comparison (Bucher)":
 
                         except Exception as e:
                             st.error(f"Statistical computation failed: {str(e)}")
+
+
+                            # ==========================================
+                            # Validation Area
+                            # ==========================================
+                            st.markdown("---")
+                            st.subheader("🔍 Trials Data Validation")
+                            st.markdown("Verify the reconstruction accuracy for both input trials before comparison.")
+                            
+                            df1 = results["DataFrames"]["Trial 1"]
+                            df2 = results["DataFrames"]["Trial 2"]
+                            
+                            # Container
+                            t1_container = st.container(border=True)
+                            t2_container = st.container(border=True)
+                            
+                            with t1_container:
+                                st.markdown(f"### 📄 Trial 1: {treat_a} vs {treat_b1}")
+                                v1_col_img, v1_col_plot = st.columns(2)
+                                with v1_col_img:
+                                    st.markdown("Original Image")
+                                    st.image(file1, width="stretch")
+                                with v1_col_plot:
+                                    st.markdown("Reconstructed Plot")
+                                    fig1 = plot_reconstructed_km(df1)
+                                    st.pyplot(fig1)
+                                    
+                                st.dataframe(df1, use_container_width=True, height=200)
+                                st.download_button("📥 Download Trial 1 CSV", data=df1.to_csv(index=False).encode('utf-8'), file_name='trial1_data.csv', mime='text/csv')
+
+                            st.markdown("---")
+
+                            with t2_container:
+                                st.markdown(f"### 📄 Trial 2: {treat_c} vs {treat_b2}")
+                                v2_col_img, v2_col_plot = st.columns(2)
+                                with v2_col_img:
+                                    st.markdown("Original Image")
+                                    st.image(file2, width="stretch")
+                                with v2_col_plot:
+                                    st.markdown("Reconstructed Plot")
+                                    fig2 = plot_reconstructed_km(df2)
+                                    st.pyplot(fig2)
+                                    
+                                st.dataframe(df2, use_container_width=True, height=200)
+                                st.download_button("📥 Download Trial 2 CSV", data=df2.to_csv(index=False).encode('utf-8'), file_name='trial2_data.csv', mime='text/csv')
