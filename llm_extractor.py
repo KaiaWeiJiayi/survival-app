@@ -18,7 +18,7 @@ def extract_data_from_km_image(image_file):
         return {"error": f"图片处理失败: {str(e)}"}
 
     # --- 关键改动：使用你列表中的 3.1 预览版路径 ---
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_KEY}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={API_KEY}"
 
     prompt = """
     Identify the treatment groups in this KM curve. 
