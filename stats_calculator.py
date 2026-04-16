@@ -3,6 +3,8 @@ import numpy as np
 from lifelines.statistics import multivariate_logrank_test, logrank_test
 from lifelines import CoxPHFitter
 from scipy.stats import norm
+from lifelines import KaplanMeierFitter
+import matplotlib.pyplot as plt
 
 def reconstruct_patient_data(group_data):
     """
@@ -178,3 +180,56 @@ def calculate_bucher_method(data1, treat_a, treat_b1, data2, treat_c, treat_b2):
                 "Trial 2": df_trial2
             }
         }
+
+
+# ==========================================
+# VALIDATION: Plotting Function
+# ==========================================
+
+def plot_reconstructed_km(combined_df):
+    """
+    Uses lifelines to plot KM curves with automatically assigned colors 
+    based on the number of groups.
+    """
+    fig, ax = plt.subplots(figsize=(10, 6))
+    kmf = KaplanMeierFitter()
+    
+    groups = combined_df['group_name'].unique()
+    num_groups = len(groups)
+
+    
+    if num_groups <= 10:
+        colormap = plt.get_cmap('tab10') 
+    else:
+        colormap = plt.get_cmap('hsv')
+
+    for i, group in enumerate(groups):
+        group_data = combined_df[combined_df['group_name'] == group]
+        
+
+        color = colormap(i / max(1, (num_groups - 1))) if num_groups > 1 else colormap(0)
+        
+        kmf.fit(
+            group_data['time'], 
+            event_observed=group_data['event'], 
+            label=group
+        )
+        
+        kmf.plot_survival_function(
+            ax=ax, 
+            ci_show=True,       # 95% interval
+            color=color,
+            linewidth=2.5,
+            alpha=0.8
+        )
+        
+    ax.set_title("Validation: Reconstructed Kaplan-Meier Curves", fontsize=14, fontweight='bold')
+    ax.set_xlabel("Time", fontsize=12)
+    ax.set_ylabel("Survival Probability", fontsize=12)
+    ax.set_ylim([0, 1.05])
+    ax.grid(True, linestyle=':', alpha=0.6)
+    
+    ax.legend(title="Treatment Groups", bbox_to_anchor=(1.05, 1), loc='upper left')
+    
+    plt.tight_layout()
+    return fig
