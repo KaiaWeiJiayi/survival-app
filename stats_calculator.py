@@ -86,7 +86,7 @@ def calculate_log_rank(json_data):
     else:
         res = multivariate_logrank_test(combined['time'], combined['group_name'], combined['event'])
     
-    return res.p_value
+    return res.p_value, combined
 
 # ==========================================
 # EXTRA CREDIT: Bucher Method Functions
