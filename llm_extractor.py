@@ -52,25 +52,48 @@ def try_google_official(image_b64):
         return {"error": str(e)}
 
 def try_openrouter(image_b64):
-    """OpenRouter 备选调用逻辑"""
+    """OpenRouter 备选调用逻辑 - 增强报错版"""
     api_key = st.secrets.get("OPENROUTER_API_KEY")
     if not api_key: return {"error": "缺少 OpenRouter API Key"}
     
     url = "https://openrouter.ai/api/v1/chat/completions"
+    
+    # 核心改动 1：换一个更稳的模型标识符
+    # 如果 google/gemini-flash-1.5-exp:free 不行，尝试 google/gemini-flash-1.5
     payload = {
-        "model": "google/gemini-flash-1.5-exp:free",
-        "messages": [{"role": "user", "content": [
-            {"type": "text", "text": "Extract KM curve data to JSON."},
-            {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_b64}"}}
-        ]}]
+        "model": "google/gemini-flash-1.5", 
+        "messages": [{
+            "role": "user", 
+            "content": [
+                {"type": "text", "text": "Extract KM curve data to JSON. Return only JSON."},
+                {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_b64}"}}
+            ]
+        }]
     }
-    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
+    
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://streamlit.io", # OpenRouter 有时需要这个
+        "X-Title": "Survival App"
+    }
+    
     try:
-        response = requests.post(url, headers=headers, json=payload, timeout=30)
+        response = requests.post(url, headers=headers, json=payload, timeout=40)
         res_json = response.json()
-        content = res_json['choices'][0]['message']['content']
-        if "```json" in content:
-            content = content.split("```json")[1].split("```")[0].strip()
-        return json.loads(content)
+        
+        # 核心改动 2：捕获具体的 OpenRouter 报错
+        if "error" in res_json:
+            return {"error": f"OpenRouter API 拒接: {res_json['error'].get('message')}"}
+            
+        if "choices" in res_json:
+            content = res_json['choices'][0]['message']['content']
+            if "```json" in content:
+                content = content.split("```json")[1].split("```")[0].strip()
+            elif "```" in content:
+                content = content.split("```")[1].split("```")[0].strip()
+            return json.loads(content)
+        
+        return {"error": f"未知返回格式: {res_json}"}
     except Exception as e:
-        return {"error": str(e)}
+        return {"error": f"网络异常: {str(e)}"}
