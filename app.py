@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from llm_extractor import extract_data_from_km_image
 from stats_calculator import calculate_log_rank, calculate_bucher_method
+from stats_calculator import plot_reconstructed_km
 
 st.set_page_config(page_title="KM Survival AI", layout="wide", initial_sidebar_state="expanded")
 
