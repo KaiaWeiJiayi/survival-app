@@ -1,3 +1,4 @@
+from stats_calculator import calculate_log_rank, calculate_bucher_method
 import streamlit as st
 import pandas as pd
 from llm_extractor import extract_data_from_km_image
@@ -9,7 +10,7 @@ st.set_page_config(page_title="KM Survival AI", layout="wide")
 st.title("📊 Survival Analysis AI & Indirect Comparison")
 st.markdown("Digitize Kaplan-Meier curves using AI and perform advanced survival statistics.")
 
-# 创建两个平行的标签页
+# Create two pages
 tab1, tab2 = st.tabs(["📌 Single Trial Analysis", "🌟 Extra Credit: Indirect Comparison (Bucher)"])
 
 # ==========================================
@@ -105,5 +106,31 @@ with tab2:
 
                 # 步骤 3：执行计算
                 if st.button("🔬 Step 3: Run Bucher Method (A vs C)", type="primary"):
-                    st.info("The UI is ready! Here we will display the Hazard Ratio (HR), 95% CI, and P-value.")
-                    # 接下来我们将在 stats_calculator.py 中编写 calculate_bucher 并在此时调用它
+                    with st.spinner("Fitting Cox Proportional Hazards models..."):
+                        try:
+                            results = calculate_bucher_method(
+                                d1, treat_a, treat_b1, 
+                                d2, treat_c, treat_b2
+                            )
+                            
+                            st.success("Indirect Comparison Complete!")
+                            
+                            res_ac = results["Indirect (A vs C)"]
+                            
+                            # Display Key Metrics
+                            col_m1, col_m2, col_m3 = st.columns(3)
+                            col_m1.metric("Indirect Hazard Ratio (A vs C)", f"{res_ac['HR']:.2f}")
+                            col_m2.metric("95% Confidence Interval", f"[{res_ac['CI_Lower']:.2f}, {res_ac['CI_Upper']:.2f}]")
+                            col_m3.metric("P-value", f"{res_ac['P_Value']:.4f}")
+                            
+                            # Conclusion text
+                            if res_ac['P_Value'] < 0.05:
+                                st.info(f"**Conclusion:** There is a statistically significant difference between {treat_a} and {treat_c}.")
+                            else:
+                                st.warning(f"**Conclusion:** No statistically significant difference between {treat_a} and {treat_c} based on the indirect comparison.")
+                                
+                            with st.expander("View Detailed Math breakdown"):
+                                st.json(results)
+                                
+                        except Exception as e:
+                            st.error(f"Statistical computation failed: {str(e)}")
