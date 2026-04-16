@@ -2,5 +2,5 @@ streamlit
 lifelines
 pandas
 numpy
-google-genai
+requests
 Pillow
