@@ -8,7 +8,7 @@ st.set_page_config(page_title="KM Survival AI", layout="wide")
 
 st.title("📊 Survival Analysis AI & Indirect Comparison")
 st.markdown("Digitize Kaplan-Meier curves using AI and perform advanced survival statistics.")
-st.author("Jiayi Wei")
+st.caption("👨‍💻 Author: Jiayi Wei | M.Sc. in Biostatistics and Data Science")
 
 # Create two pages
 tab1, tab2 = st.tabs(["📌 Single Trial Analysis", "🌟 Extra Credit: Indirect Comparison (Bucher)"])
