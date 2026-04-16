@@ -19,8 +19,7 @@ def extract_data_from_km_image(image_file):
         return {"error": f"Failed to process image: {str(e)}"}
 
     # 2. Define the REST endpoint (Using the stable v1 API)
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={API_KEY}"
-
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
     # 3. Create the prompt
     prompt = """
     You are a professional biostatistician. Please analyze this Kaplan-Meier survival curve.
