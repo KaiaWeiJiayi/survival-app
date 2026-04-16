@@ -4,7 +4,8 @@ import os
 from PIL import Image
 
 # TODO: Replace with your actual Gemini API Key
-API_KEY = "YOUR_API_KEY_HERE"
+import streamlit as st
+API_KEY = st.secrets["GEMINI_API_KEY"]
 genai.configure(api_key=API_KEY)
 
 
