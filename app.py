@@ -203,26 +203,6 @@ elif selected_module == "🌟 Indirect Comparison (Bucher)":
                                 math_results = {k: v for k, v in results.items() if k != "DataFrames"}
                                 st.json(math_results)
                             
-                            st.markdown("---")
-                            st.subheader("📋 Reconstructed Patient-Level Data")
-                            df1 = results["DataFrames"]["Trial 1"]
-                            df2 = results["DataFrames"]["Trial 2"]
-                            
-                            col_t1, col_t2 = st.columns(2)
-                            with col_t1:
-                                st.markdown(f"**Trial 1: {treat_a} vs {treat_b1}**")
-                                st.dataframe(df1, use_container_width=True)
-                                st.download_button("📥 Download Trial 1 CSV", data=df1.to_csv(index=False).encode('utf-8'), file_name='trial1_data.csv', mime='text/csv')
-                                
-                            with col_t2:
-                                st.markdown(f"**Trial 2: {treat_c} vs {treat_b2}**")
-                                st.dataframe(df2, use_container_width=True)
-                                st.download_button("📥 Download Trial 2 CSV", data=df2.to_csv(index=False).encode('utf-8'), file_name='trial2_data.csv', mime='text/csv')
-
-                        except Exception as e:
-                            st.error(f"Statistical computation failed: {str(e)}")
-
-
                             # ==========================================
                             # Validation Area
                             # ==========================================
@@ -242,7 +222,7 @@ elif selected_module == "🌟 Indirect Comparison (Bucher)":
                                 v1_col_img, v1_col_plot = st.columns(2)
                                 with v1_col_img:
                                     st.markdown("Original Image")
-                                    st.image(file1, width="stretch")
+                                    st.image(file1, use_container_width=True)
                                 with v1_col_plot:
                                     st.markdown("Reconstructed Plot")
                                     fig1 = plot_reconstructed_km(df1)
@@ -258,7 +238,7 @@ elif selected_module == "🌟 Indirect Comparison (Bucher)":
                                 v2_col_img, v2_col_plot = st.columns(2)
                                 with v2_col_img:
                                     st.markdown("Original Image")
-                                    st.image(file2, width="stretch")
+                                    st.image(file2, use_container_width=True)
                                 with v2_col_plot:
                                     st.markdown("Reconstructed Plot")
                                     fig2 = plot_reconstructed_km(df2)
@@ -266,3 +246,7 @@ elif selected_module == "🌟 Indirect Comparison (Bucher)":
                                     
                                 st.dataframe(df2, use_container_width=True, height=200)
                                 st.download_button("📥 Download Trial 2 CSV", data=df2.to_csv(index=False).encode('utf-8'), file_name='trial2_data.csv', mime='text/csv')
+
+                        # except
+                        except Exception as e:
+                            st.error(f"Statistical computation failed: {str(e)}")
