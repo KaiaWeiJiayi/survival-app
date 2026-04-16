@@ -163,13 +163,18 @@ def calculate_bucher_method(data1, treat_a, treat_b1, data2, treat_c, treat_b2):
     p_value = 2 * (1 - norm.cdf(abs(z_score)))
     
     return {
-        "Trial 1 (A vs B)": {"HR": np.exp(log_hr_ab), "Log_HR": log_hr_ab, "SE": se_ab},
-        "Trial 2 (C vs B)": {"HR": np.exp(log_hr_cb), "Log_HR": log_hr_cb, "SE": se_cb},
-        "Indirect (A vs C)": {
-            "HR": hr_ac,
-            "CI_Lower": ci_lower,
-            "CI_Upper": ci_upper,
-            "P_Value": p_value,
-            "Z_Score": z_score
+            "Trial 1 (A vs B)": {"HR": np.exp(log_hr_ab), "Log_HR": log_hr_ab, "SE": se_ab},
+            "Trial 2 (C vs B)": {"HR": np.exp(log_hr_cb), "Log_HR": log_hr_cb, "SE": se_cb},
+            "Indirect (A vs C)": {
+                "HR": hr_ac,
+                "CI_Lower": ci_lower,
+                "CI_Upper": ci_upper,
+                "P_Value": p_value,
+                "Z_Score": z_score
+            },
+            # 新增这一行：把重建的数据表一起返回给前端
+            "DataFrames": {
+                "Trial 1": df_trial1,
+                "Trial 2": df_trial2
+            }
         }
-    }
