@@ -19,8 +19,8 @@ def extract_data_from_km_image(image_file):
         return {"error": f"Failed to process image: {str(e)}"}
 
     # 2. Define the REST endpoint
-    # Note: Explicitly using v1beta for feature support
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
+    # Note: Explicitly using v1 for feature support
+    url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={API_KEY}"
 
     # 3. Create the prompt and payload
     prompt = """
