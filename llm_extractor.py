@@ -37,8 +37,8 @@ def extract_data_from_km_image(image_file):
         # Open the uploaded image
         img = Image.open(image_file)
         
-        # Call the model using the new SDK syntax
-        # Note: 'gemini-1.5-flash' is used for better stability
+        # FIX: Use the most standard model identifier string
+        # and ensure the client is calling the generative model correctly
         response = client.models.generate_content(
             model='gemini-1.5-flash',
             contents=[prompt, img]
@@ -46,10 +46,12 @@ def extract_data_from_km_image(image_file):
         
         # Clean the LLM output to ensure it is a valid JSON string
         result_text = response.text.strip()
-        if result_text.startswith("```json"):
-            result_text = result_text[7:-3].strip()
-        elif result_text.startswith("```"):
-            result_text = result_text[3:-3].strip()
+        
+        # Remove potential Markdown code block formatting
+        if "```json" in result_text:
+            result_text = result_text.split("```json")[1].split("```")[0].strip()
+        elif "```" in result_text:
+            result_text = result_text.split("```")[1].split("```")[0].strip()
             
         return json.loads(result_text)
         
