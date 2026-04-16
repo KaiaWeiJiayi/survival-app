@@ -172,7 +172,7 @@ def calculate_bucher_method(data1, treat_a, treat_b1, data2, treat_c, treat_b2):
                 "P_Value": p_value,
                 "Z_Score": z_score
             },
-            # 新增这一行：把重建的数据表一起返回给前端
+        
             "DataFrames": {
                 "Trial 1": df_trial1,
                 "Trial 2": df_trial2
