@@ -4,14 +4,44 @@ import pandas as pd
 from llm_extractor import extract_data_from_km_image
 from stats_calculator import calculate_log_rank
 
-st.set_page_config(page_title="KM Survival AI", layout="wide")
 
-st.title("📊 Survival Analysis AI & Indirect Comparison")
-st.markdown("Digitize Kaplan-Meier curves using AI and perform advanced survival statistics.")
-st.caption("👨‍💻 Author: Jiayi Wei | M.Sc. in Biostatistics and Data Science")
+st.set_page_config(page_title="KM Survival AI", layout="wide", initial_sidebar_state="expanded")
 
+st.markdown("""
+    <style>
+    /* Cornell Red */
+    div.stButton > button:first-child {
+        background-color: #b31b1b;
+        color: white;
+        border: none;
+    }
+    div.stButton > button:hover {
+        background-color: #8a1515;
+        color: white;
+    }
+    /* sidebar */
+    [data-testid="stSidebar"] {
+        background-color: #f8f9fa;
+        border-right: 2px solid #b31b1b;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+# 3. float bar (Sidebar)
+st.sidebar.image("https://brand.weill.cornell.edu/sites/default/files/2019-06/WeillCornellMedicine-1-red.png", use_container_width=True)
+st.sidebar.markdown("---")
+st.sidebar.markdown("### Analysis Modules")
+
+selected_module = st.sidebar.radio(
+    "Select an analysis:",
+    ["1. Single Trial Analysis", "2. Indirect Comparison (Bucher)"]
+)
+
+st.sidebar.markdown("---")
+st.sidebar.markdown("Department of Population Health Sciences")
+st.sidebar.caption("👨‍💻 Developed by: Jiayi Wei")
 # Create two pages
-tab1, tab2 = st.tabs(["📌 Single Trial Analysis", "🌟 Extra Credit: Indirect Comparison (Bucher)"])
+tab1, tab2 = st.tabs(["📌 Single Trial Analysis", "🌟 Indirect Comparison (Bucher)"])
 
 # ==========================================
 # TAB 1:
