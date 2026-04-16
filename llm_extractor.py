@@ -39,7 +39,7 @@ def extract_data_from_km_image(image_file):
         
         # Call the model using the new SDK syntax
         response = client.models.generate_content(
-            model='gemini-2.0-flash',
+            model='gemini-1.5-flash',
             contents=[prompt, img]
         )
         
