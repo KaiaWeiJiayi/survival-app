@@ -61,7 +61,7 @@ def try_openrouter(image_b64):
     # 核心改动 1：换一个更稳的模型标识符
     # 如果 google/gemini-flash-1.5-exp:free 不行，尝试 google/gemini-flash-1.5
     payload = {
-        "model": "google/gemini-flash-1.5", 
+        "model": "google/gemini-2.0-flash", 
         "messages": [{
             "role": "user", 
             "content": [
