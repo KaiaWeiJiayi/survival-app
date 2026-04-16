@@ -3,18 +3,18 @@ import streamlit as st
 import pandas as pd
 from llm_extractor import extract_data_from_km_image
 from stats_calculator import calculate_log_rank
-# from stats_calculator import calculate_bucher_method (等我们写完后端再取消注释)
 
 st.set_page_config(page_title="KM Survival AI", layout="wide")
 
 st.title("📊 Survival Analysis AI & Indirect Comparison")
 st.markdown("Digitize Kaplan-Meier curves using AI and perform advanced survival statistics.")
+st.author("Jiayi Wei")
 
 # Create two pages
 tab1, tab2 = st.tabs(["📌 Single Trial Analysis", "🌟 Extra Credit: Indirect Comparison (Bucher)"])
 
 # ==========================================
-# TAB 1: 你原有的核心功能 (完全保留)
+# TAB 1:
 # ==========================================
 with tab1:
     st.markdown("Upload a single KM curve to automatically extract data and compute the P-value.")
@@ -27,7 +27,6 @@ with tab1:
     if uploaded_file:
         col_img, col_res = st.columns([1, 1])
         with col_img:
-            # 修复了弃用警告，使用 width="stretch"
             st.image(uploaded_file, caption="Uploaded Kaplan-Meier Curve", width="stretch")
         
         with col_res:
@@ -44,18 +43,39 @@ with tab1:
                     
                     st.subheader("📈 Statistical Analysis Result")
                     try:
-                        p_value = calculate_log_rank(data)
+                    
+                        p_value, df_reconstructed = calculate_log_rank(data)
+                        
                         st.metric(label="Log-rank P-value", value=f"{p_value:.4e}" if p_value < 0.0001 else f"{p_value:.4f}")
+                        
                         if p_value < 0.05:
                             st.write("✅ **Statistically Significant** (p < 0.05)")
                         else:
                             st.write("❌ **Not Statistically Significant** (p >= 0.05)")
+                        
+                        st.info(f"Analysis performed: {'Multivariate' if len(data) > 2 else 'Standard'} Log-rank Test with Linear Interpolation")
+                        
+
+                        st.markdown("---")
+                        st.subheader("📋 Reconstructed Patient-Level Data")
+                        st.markdown("Estimated event times and censoring indicators (`1` = Event, `0` = Censored).")
+
+                        st.dataframe(df_reconstructed, use_container_width=True)
+                        
+                        # CVS Download
+                        csv = df_reconstructed.to_csv(index=False).encode('utf-8')
+                        st.download_button(
+                            label="📥 Download Data as CSV",
+                            data=csv,
+                            file_name='reconstructed_survival_data.csv',
+                            mime='text/csv',
+                        )
+                        
                     except Exception as e:
                         st.error(f"Stats Error: {str(e)}")
 
-
 # ==========================================
-# TAB 2: Extra Credit (Bucher 间接比较前端)
+# TAB 2: Extra Credit (Bucher Indirectly Comparison)
 # ==========================================
 with tab2:
     st.markdown("### 🌉 Indirect Treatment Comparison")
@@ -72,15 +92,15 @@ with tab2:
         file2 = st.file_uploader("Upload Trial 2 KM plot", type=["png", "jpg", "jpeg"], key="file2")
         if file2: st.image(file2, width="stretch")
 
-    # 步骤 1：一键同时提取两张图的数据
+    # step 1: extract data from two km plots
     if file1 and file2:
         if st.button("🚀 Step 1: Digitze Both Trials", type="primary", key="btn_double"):
             with st.spinner("AI is analyzing both curves... this might take a moment."):
-                # 使用 session_state 保存数据，防止页面刷新丢失
+                # session_state to retain data
                 st.session_state['data1'] = extract_data_from_km_image(file1)
                 st.session_state['data2'] = extract_data_from_km_image(file2)
         
-        # 步骤 2：如果提取成功，展示选择网络
+        # step 2: display chosen botton
         if 'data1' in st.session_state and 'data2' in st.session_state:
             d1, d2 = st.session_state['data1'], st.session_state['data2']
             
@@ -104,7 +124,7 @@ with tab2:
                 with col_c:
                     treat_c = st.selectbox("Target: Treatment C (Trial 2)", groups2, index=len(groups2)-1 if len(groups2)>1 else 0)
 
-                # 步骤 3：执行计算
+                # step 3: computing
                 if st.button("🔬 Step 3: Run Bucher Method (A vs C)", type="primary"):
                     with st.spinner("Fitting Cox Proportional Hazards models..."):
                         try:
@@ -130,7 +150,33 @@ with tab2:
                                 st.warning(f"**Conclusion:** No statistically significant difference between {treat_a} and {treat_c} based on the indirect comparison.")
                                 
                             with st.expander("View Detailed Math breakdown"):
-                                st.json(results)
+                                # delete DataFrames to avoid JSON error
+                                math_results = {k: v for k, v in results.items() if k != "DataFrames"}
+                                st.json(math_results)
+                            
+                            # ==========================================
+                            # download Trial 1 & Trial 2 extracted data
+                            # ==========================================
+                            st.markdown("---")
+                            st.subheader("📋 Reconstructed Patient-Level Data")
+                            st.markdown("Estimated event times and indicators for both trials.")
+                            
+                            df1 = results["DataFrames"]["Trial 1"]
+                            df2 = results["DataFrames"]["Trial 2"]
+                            
+                            col_t1, col_t2 = st.columns(2)
+                            
+                            with col_t1:
+                                st.markdown(f"**Trial 1: {treat_a} vs {treat_b1}**")
+                                st.dataframe(df1, use_container_width=True)
+                                csv1 = df1.to_csv(index=False).encode('utf-8')
+                                st.download_button("📥 Download Trial 1 CSV", data=csv1, file_name='trial1_data.csv', mime='text/csv')
                                 
+                            with col_t2:
+                                st.markdown(f"**Trial 2: {treat_c} vs {treat_b2}**")
+                                st.dataframe(df2, use_container_width=True)
+                                csv2 = df2.to_csv(index=False).encode('utf-8')
+                                st.download_button("📥 Download Trial 2 CSV", data=csv2, file_name='trial2_data.csv', mime='text/csv')
+
                         except Exception as e:
                             st.error(f"Statistical computation failed: {str(e)}")
