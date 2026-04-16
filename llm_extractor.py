@@ -3,57 +3,42 @@ import json
 from PIL import Image
 import streamlit as st
 
-# Fetch API Key securely from Streamlit secrets
+# Securely fetch API Key
 API_KEY = st.secrets["GEMINI_API_KEY"]
-
-# Initialize the new genai client
 client = genai.Client(api_key=API_KEY)
 
 def extract_data_from_km_image(image_file):
     """
-    Extract survival data from a Kaplan-Meier curve image using a multimodal LLM.
+    Extract survival data from a KM curve using the new Gemini SDK.
     """
     prompt = """
-    You are a professional biostatistician. Please analyze this Kaplan-Meier survival curve.
-    I need you to extract the data points for each treatment group (e.g., Group A, Group B) shown in the plot.
-    
-    Please carefully observe the time points (Time) and corresponding survival probabilities (Survival Probability) at each step-down of the curve.
-    If there is a "Numbers at risk" table at the bottom, you must use it to infer the sample size at specific time points.
-    
-    Strictly output in JSON format, without any other explanatory text. The JSON structure should be as follows:
+    You are a biostatistician. Analyze this Kaplan-Meier curve. 
+    Extract the time points, survival probabilities, and numbers at risk for each group.
+    Output strictly in JSON format as follows:
     {
-      "Group_A": [
-        {"time": 0, "survival_rate": 1.0, "at_risk": 100},
-        {"time": 5, "survival_rate": 0.85, "at_risk": 85}
-      ],
-      "Group_B": [
-        {"time": 0, "survival_rate": 1.0, "at_risk": 100},
-        {"time": 4, "survival_rate": 0.60, "at_risk": 60}
-      ]
+      "Group_A": [{"time": 0, "survival_rate": 1.0, "at_risk": 100}],
+      "Group_B": [{"time": 0, "survival_rate": 1.0, "at_risk": 100}]
     }
     """
     
     try:
-        # Open the uploaded image
         img = Image.open(image_file)
         
-        # FIX: Use the most standard model identifier string
-        # and ensure the client is calling the generative model correctly
+        # We use a very direct call to avoid 404 path issues
         response = client.models.generate_content(
             model='gemini-1.5-flash',
             contents=[prompt, img]
         )
         
-        # Clean the LLM output to ensure it is a valid JSON string
-        result_text = response.text.strip()
-        
-        # Remove potential Markdown code block formatting
-        if "```json" in result_text:
-            result_text = result_text.split("```json")[1].split("```")[0].strip()
-        elif "```" in result_text:
-            result_text = result_text.split("```")[1].split("```")[0].strip()
+        text = response.text.strip()
+        # Extract JSON if LLM wraps it in markdown blocks
+        if "```json" in text:
+            text = text.split("```json")[1].split("```")[0].strip()
+        elif "```" in text:
+            text = text.split("```")[1].split("```")[0].strip()
             
-        return json.loads(result_text)
+        return json.loads(text)
         
     except Exception as e:
+        # If 1.5-flash fails, it might be a regional model naming issue
         return {"error": str(e)}
