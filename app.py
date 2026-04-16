@@ -40,8 +40,7 @@ selected_module = st.sidebar.radio(
 st.sidebar.markdown("---")
 st.sidebar.markdown("Department of Population Health Sciences")
 st.sidebar.caption("👨‍💻 Developed by: Jiayi Wei")
-# Create two pages
-tab1, tab2 = st.tabs(["📌 Single Trial Analysis", "🌟 Indirect Comparison (Bucher)"])
+
 
 # ==========================================
 # TAB 1:
