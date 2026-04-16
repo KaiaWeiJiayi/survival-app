@@ -56,13 +56,13 @@ def calculate_log_rank(json_data):
             all_dfs.append(df)
             
     if not all_dfs:
-        raise ValueError("无法重构生存数据，请检查提取的 JSON 格式。")
+        raise ValueError("Unable to reconstruct survival data. Please check the format of the extracted JSON.")
         
     combined = pd.concat(all_dfs, ignore_index=True)
     group_names = combined['group_name'].unique()
     
     if len(group_names) < 2:
-        raise ValueError(f"需要至少 2 个治疗组进行对比，当前仅解析出 {len(group_names)} 组。")
+        raise ValueError(f"At least two treatment groups are required for comparison; currently, only {len(group_names)} group(s) have been identified.")
         
     if len(group_names) == 2:
         g1 = combined[combined['group_name'] == group_names[0]]
