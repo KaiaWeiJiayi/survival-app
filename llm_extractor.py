@@ -12,8 +12,8 @@ def extract_data_from_km_image(image_file):
     except Exception as e:
         return {"error": f"Image processing failed: {str(e)}"}
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash:generateContent?key={API_KEY}"
-
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key={API_KEY}"
+    
     prompt = """
     You are an expert Biostatistician digitizing a Kaplan-Meier survival curve.
     
